@@ -1,5 +1,13 @@
 <div class="navigation center">
-  <a href="/" class="<%= path === '/' ? 'active' : '' %>">Home</a>
+  <a href="<%=  isAuthenticated ?'/home' : '/' %>"
+    class="<%= path === '/' ? 'active' : '' %>">Home</a>
+    <% if (isAuthenticated) { %>
+      <a href="/upload">Upload image</a>
+  <form action="/logout" method="post">
+    <button type="submit" class="logout">Logout</button>
+  </form>
+  <% } else { %>
   <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>">Signup</a>
   <a href="/login" class="<%= path === '/login' ? 'active' : '' %>">Login</a>
+  <% } %>
 </div>

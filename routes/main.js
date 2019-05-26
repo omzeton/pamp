@@ -4,7 +4,7 @@ const { check, body } = require("express-validator/check");
 
 const authController = require("../controllers/auth");
 const mainController = require("../controllers/main");
-const isAuth = require('../util/isAuth');
+const isAuth = require("../util/isAuth");
 const User = require("../models/user");
 
 router.get("/signup", authController.getSignup);
@@ -23,7 +23,8 @@ router.post(
         });
       }),
     body("username", "Invalid username")
-      .isLength({ min: 1 })
+      .isString()
+      .isLength({ min: 3 })
       .trim(),
     body("password", "Password has to be at least 6 characters long.")
       .isLength({ min: 6 })
@@ -45,6 +46,8 @@ router.get("/login", authController.getLogin);
 
 router.post("/login", authController.postLogin);
 
+router.post("/logout", authController.postLogout);
+
 router.get("/success", authController.getSuccess);
 
 router.get("/error", authController.getError);
@@ -54,5 +57,25 @@ router.get("/error", authController.getError);
 router.get("/", mainController.getIndex);
 
 router.get("/home", isAuth, mainController.getHome);
+
+router.get("/settings", isAuth, mainController.getSettings);
+
+router.get("/upload", isAuth, mainController.getUpload);
+
+router.post(
+  "/upload",
+  [
+    body("title", "please enter a valid title")
+      .isString()
+      .isLength({ min: 3 })
+      .trim(),
+    body('description', "please enter a valid description")
+      .isString()
+      .isLength({ min: 3, max: 400 })
+      .trim()
+  ],
+  isAuth,
+  mainController.postUpload
+);
 
 module.exports = router;

@@ -1,0 +1,36 @@
+<%- include('../includes/head.ejs') %>
+</head>
+<body>
+
+    <h2 class="heading center">Upload</h2>
+
+    <form class="form" action="/upload" method="POST" enctype="multipart/form-data">
+
+        <div class="form-control">
+            <label for="title">Title</label>
+            <input name="title" type="text" value="<%= oldInput.title %>">
+        </div>
+
+        <div class="form-control">
+            <label for="image">Image</label>
+            <input name="image" type="file" id="image">
+        </div>
+
+        <div class="form-control">
+            <label for="decsription">Description</label>
+            <textarea name="description" rows="4" cols="31"><%= oldInput.description %></textarea>
+        </div>
+
+        <button class="form-btn" type="submit">Submit</button>
+
+    </form>
+
+    <% if (errorMessage) { %>
+        <div class="user-error-message">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <%- include('../includes/navigation.ejs') %>
+    
+<%- include('../includes/end.ejs') %>

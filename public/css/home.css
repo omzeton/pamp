@@ -1,6 +1,7 @@
 :root {
     --c1: #172a3a;
     --c2: #cfbb05;
+    --c3: #09bc8a;
     --cardo: 'Cardo', serif;
     --rubik: 'Rubik', sans-serif;
   }
@@ -24,11 +25,15 @@
 .home_left .user-avatar {
     width:8em;
     height:8em;
-    background-color:red;
+    background-image: url('../img/setup-avatar.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     margin: 0 auto;
 }
 
-.home_left p {
+.home_left p,
+.home_left a {
     margin-left: 2em;
 }
 
@@ -44,4 +49,29 @@
 
 .home_right {
     position: relative;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.home_right .post {
+    background-color: var(--c3);
+    width:25em;
+    height:auto;
+    margin:3em auto;
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius:0.5em;
+    box-shadow:0 0 100px -25px var(--c1);
+    border: 1px solid var(--c1);
+}
+
+.home_right .post:last-child {
+    margin-bottom:12em;
+}
+
+.home_right .post img {
+    width:20em;
+    height: auto;
 }

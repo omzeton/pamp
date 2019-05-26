@@ -9,9 +9,21 @@
             <p>Username: <span><%= user.name %></span></p>
             <p>Registered since: <span> <%= user.registeredSince %></span></p>
             <p>Files uploaded: <span> <%= user.filesUploaded %> </span></p>
+            <a href="/settings">Settings</a>
         </div>
         <div class="home_right">
-            
+            <% if (posts.length > 0) { %>
+                <% for (let p of posts) { %>
+                    <div class="post">
+                        <p><%= p.uploadDate %></p>
+                        <img src="/<%= p.imageUrl %>" alt="p.title">
+                        <p><%= p.title %></p>
+                        <p><%= p.description %></p>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <h2 class="center">No posts found!</h2>
+            <% } %>
         </div>
     </div>
 
