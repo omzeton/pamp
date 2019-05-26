@@ -15,11 +15,16 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+<<<<<<< HEAD
     "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^2.1.1",
     "ejs": "^2.6.1",
     "express": "^4.17.0",
     "express-session": "^1.16.1",
+=======
+    "ejs": "^2.6.1",
+    "express": "^4.17.0",
+>>>>>>> 9d9a2d2d98f84a83361c292d3ef41431c7f8a840
     "express-validator": "^5.3.1",
     "mongodb": "^3.2.6",
     "mongoose": "^5.5.11"
