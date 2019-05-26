@@ -1,0 +1,36 @@
+<%- include('./includes/head.ejs') %>
+</head>
+<body>
+
+    <h2 class="heading center">Signup page</h2>
+
+    <form class="form" action="/signup" method="POST" novalidate>
+
+        <div class="form-control">
+            <label for="email">E-Mail</label>
+            <input name="email" type="email" value="<%= oldInput.email %>">
+        </div>
+
+        <div class="form-control">
+            <label for="password">Password</label>
+            <input name="password" type="password" value="<%= oldInput.password %>">
+        </div>
+
+        <div class="form-control">
+            <label for="confirmPassword">Confirm paasword</label>
+            <input name="confirmPassword" type="password">
+        </div>
+
+        <button class="form-btn" type="submit">Signup</button>
+
+    </form>
+
+    <% if (errorMessage) { %>
+        <div class="user-error-message">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <%- include('./includes/navigation.ejs') %>
+    
+<%- include('./includes/end.ejs') %>

@@ -1,0 +1,141 @@
+:root {
+  --c1: #172a3a;
+  --c2: #cfbb05;
+}
+
+body {
+  background-color: #09bc8a;
+  margin: 0;
+  padding: 0;
+}
+
+.heading {
+  font-size: 3em;
+  color: var(--c1);
+}
+
+.center {
+  text-align: center;
+}
+
+.navigation {
+  background-color: var(--c1);
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.navigation a {
+  color: #fff;
+  text-decoration: none;
+  line-height: 0;
+  margin: 0 2em;
+}
+
+.navigation a.active {
+  color:var(--c2) !important;
+}
+
+.form {
+  width: 15rem;
+  margin: auto;
+  display: block;
+  padding:2em;
+  border:2px solid var(--c1);
+  position: relative;
+  border-radius:0.5em;
+}
+
+.form-control {
+  margin: 1em 0;
+}
+
+.form-control label,
+.form-control input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.25em;
+}
+
+.form-control input {
+    border: 1px solid var(--c1);
+    background-color: transparent;
+    height:1.5em;
+}
+
+.form-control input:focus {
+    outline-color: var(--c2);
+}
+
+.form-btn {
+    background-color:var(--c1);
+    color:#fff;
+    border:none;
+    padding:1em;
+    position: relative;
+    left:50%;
+    transform:translateX(-50%);
+    cursor: pointer;
+}
+
+.user-error-message {
+  position: relative;
+  background-color:var(--c1);
+  width:15em;
+  height:4em;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  color:var(--c2);
+  border-radius:0.5em;
+  margin:0 auto;
+  margin-top:2em;
+  text-align: center;
+}
+
+.bg {
+  position: absolute;
+  background-image:url('../img/bg.png');
+  background-position: center;
+  background-size:contain;
+  width:100%;
+  height:15em;
+  bottom:2em;
+  z-index: -999;
+}
+
+.success-page {
+  background-color:var(--c1);
+  width:25em;
+  height: auto;
+  margin:0 auto;
+  padding:2em;
+  border-radius:0.5em;
+  position: absolute;
+  top:40%;
+  left:50%;
+  transform:translateX(-50%) translateY(-50%);
+  box-shadow:0 0 100px -25px var(--c2);
+}
+
+.success-page h2 {
+  text-align: center;
+  color:var(--c2);
+  font-weight: bold;
+  font-size: 3em;
+}
+
+.success-page p {
+  position: relative;
+  text-align: center;
+  color:#fff;
+  line-height: 1.5em;
+  width:80%;
+  left:50%;
+  transform:translateX(-50%);
+}
