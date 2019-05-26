@@ -10,6 +10,18 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    username: {
+        type: String,
+        required: true
+    },
+    registryDate: {
+        type: String,
+        required: true
+    },
+    uploaded: {
+        type: Number,
+        required: true
     }
 });
 

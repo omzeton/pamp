@@ -1,6 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Rubik:900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Cardo:400,400i&display=swap');
+
 :root {
   --c1: #172a3a;
   --c2: #cfbb05;
+  --cardo: 'Cardo', serif;
+  --rubik: 'Rubik', sans-serif;
 }
 
 body {
@@ -12,6 +17,7 @@ body {
 .heading {
   font-size: 3em;
   color: var(--c1);
+  font-family: var(--rubik);
 }
 
 .center {
@@ -35,6 +41,8 @@ body {
   text-decoration: none;
   line-height: 0;
   margin: 0 2em;
+  font-family: var(--cardo);
+  margin-bottom:0.5em;
 }
 
 .navigation a.active {
@@ -49,6 +57,7 @@ body {
   border:2px solid var(--c1);
   position: relative;
   border-radius:0.5em;
+  box-shadow:0 0 30px -15px var(--c2);
 }
 
 .form-control {
@@ -60,6 +69,7 @@ body {
   display: block;
   width: 100%;
   margin-bottom: 0.25em;
+  font-family: var(--cardo);
 }
 
 .form-control input {
@@ -81,6 +91,7 @@ body {
     left:50%;
     transform:translateX(-50%);
     cursor: pointer;
+    box-shadow:0 0 30px -5px var(--c1);
 }
 
 .user-error-message {
@@ -106,7 +117,7 @@ body {
   width:100%;
   height:15em;
   bottom:2em;
-  z-index: -999;
+  z-index: 999;
 }
 
 .success-page {
@@ -138,4 +149,35 @@ body {
   width:80%;
   left:50%;
   transform:translateX(-50%);
+}
+
+.welcome {
+  position: absolute;
+  width:50em;
+  height: auto;
+  top:40%;
+  left:50%;
+  transform:translateX(-50%) translateY(-50%);
+}
+
+.welcome .welcome__png {
+  background-image: url('../img/pamp_3.png');
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width:auto;
+  height:20em;
+}
+
+.welcome p {
+  width:30em;
+  text-align: justify;
+  position: relative;
+  left:50%;
+  transform:translateX(-50%);
+  margin-top:-3em;
+  color:#fff;
+  line-height: 1.2em;
+  font-size: 0.9em;
+  font-family: var(--cardo);
 }

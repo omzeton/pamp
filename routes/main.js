@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { check, body } = require("express-validator/check");
 
-const mainController = require("../controllers/main.js");
+const authController = require("../controllers/auth");
+const mainController = require("../controllers/main");
+const isAuth = require('../util/isAuth');
 const User = require("../models/user");
 
-router.get("/signup", mainController.getSignup);
+router.get("/signup", authController.getSignup);
 
 router.post(
   "/signup",
@@ -20,10 +22,10 @@ router.post(
           }
         });
       }),
-    body(
-      "password",
-      "Password has to be at least 6 characters long."
-    )
+    body("username", "Invalid username")
+      .isLength({ min: 1 })
+      .trim(),
+    body("password", "Password has to be at least 6 characters long.")
       .isLength({ min: 6 })
       .isAlphanumeric()
       .trim(),
@@ -36,15 +38,21 @@ router.post(
         return true;
       })
   ],
-  mainController.postSignup
+  authController.postSignup
 );
 
-router.get("/login", mainController.getLogin);
+router.get("/login", authController.getLogin);
 
-router.post("/login", mainController.postLogin);
+router.post("/login", authController.postLogin);
 
-router.get("/success", mainController.getSuccess);
+router.get("/success", authController.getSuccess);
 
-router.get("/error", mainController.getError);
+router.get("/error", authController.getError);
+
+// main
+
+router.get("/", mainController.getIndex);
+
+router.get("/home", isAuth, mainController.getHome);
 
 module.exports = router;

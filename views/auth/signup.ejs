@@ -1,4 +1,4 @@
-<%- include('./includes/head.ejs') %>
+<%- include('../includes/head.ejs') %>
 </head>
 <body>
 
@@ -9,6 +9,11 @@
         <div class="form-control">
             <label for="email">E-Mail</label>
             <input name="email" type="email" value="<%= oldInput.email %>">
+        </div>
+
+        <div class="form-control">
+            <label for="username">Username</label>
+            <input name="username" type="text" value="<%= oldInput.username %>">
         </div>
 
         <div class="form-control">
@@ -31,6 +36,6 @@
         </div>
     <% } %>
 
-    <%- include('./includes/navigation.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
     
-<%- include('./includes/end.ejs') %>
+<%- include('../includes/end.ejs') %>

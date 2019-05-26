@@ -1,0 +1,47 @@
+:root {
+    --c1: #172a3a;
+    --c2: #cfbb05;
+    --cardo: 'Cardo', serif;
+    --rubik: 'Rubik', sans-serif;
+  }
+
+.home_container {
+    position: absolute;
+    width:100%;
+    height: 100%;
+    display:grid;
+    grid-template-rows:1fr;
+    grid-template-columns:15em 1fr;
+}
+
+.home_left {
+    position: relative;
+    display:flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.home_left .user-avatar {
+    width:8em;
+    height:8em;
+    background-color:red;
+    margin: 0 auto;
+}
+
+.home_left p {
+    margin-left: 2em;
+}
+
+
+.home_left:after {
+    content: '';
+    position: absolute;
+    width: 0.05em;
+    height: 100%;
+    left: 100%;
+    background-color: var(--c1);
+}
+
+.home_right {
+    position: relative;
+}
