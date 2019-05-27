@@ -23,6 +23,10 @@ const userSchema = new Schema({
     type: Number,
     required: true
   },
+  avatar: {
+    type: String,
+    required: true
+  },
   posts: [
     {
       postId: {

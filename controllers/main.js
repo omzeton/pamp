@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const Post = require("../models/post");
+const fileHelper = require("../util/deleteFile");
 const { validationResult } = require("express-validator/check");
 
 function getCurrentDate() {
@@ -51,26 +52,129 @@ exports.getHome = (req, res, next) => {
       pageTitle: "Welcome to Pamp"
     });
   }
-  Post.find()
-    .then(allPosts => {
-      return res.render("main/home", {
-        path: "/home",
-        pageTitle: "Pamp - Home",
-        user: {
-          name: req.user.username,
-          registeredSince: req.user.registryDate,
-          filesUploaded: req.user.uploaded
-        },
-        posts: allPosts
-      });
+  Post.find().then(allPosts => {
+    return res.render("main/home", {
+      path: "/home",
+      pageTitle: "Pamp - Home",
+      user: {
+        name: req.user.username,
+        registeredSince: req.user.registryDate,
+        filesUploaded: req.user.uploaded,
+        avatar: req.session.user.avatar
+      },
+      posts: allPosts
+    });
   });
 };
 
 exports.getSettings = (req, res, next) => {
   res.render("main/settings", {
     path: "/settings",
-    pageTitle: "Pamp - User settings"
+    pageTitle: "Pamp - User settings",
+    errorMessage: "",
+    oldInput: {
+      username: req.session.user.username
+    },
+    validationErrors: []
   });
+};
+
+exports.postSettings = (req, res, next) => {
+  const newUsername = req.body.username;
+  const image = req.file;
+  const unlinkFile = req.session.user.avatar;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.render("main/settings", {
+      path: "/settings",
+      pageTitle: "Pamp - User settings",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        username: req.session.user.username
+      },
+      validationErrors: errors.array()
+    });
+  }
+
+  if (image && newUsername !== req.session.user.username) {
+    const imageUrl = image.path.replace("\\", "/");
+    User.findById(req.session.user._id)
+      .then(user => {
+        user.username = newUsername;
+        req.session.user.username = newUsername;
+        user.avatar = imageUrl;
+        req.session.user.avatar = imageUrl;
+        return user.save();
+      })
+      .then(() => {
+        return Post.updateMany(
+          {},
+          { username: newUsername, avatarUrl: imageUrl }
+        );
+      })
+      .then(() => {
+        fileHelper.deleteFile(unlinkFile);
+        return res.redirect("/home");
+      })
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
+  }
+  if (!image && newUsername !== req.session.user.username) {
+    User.findById(req.session.user._id)
+      .then(user => {
+        user.username = newUsername;
+        req.session.user.username = newUsername;
+        return user.save();
+      })
+      .then(() => {
+        return Post.updateMany({}, { username: newUsername });
+      })
+      .then(() => {
+        return res.redirect("/home");
+      })
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
+  }
+  if (image && newUsername === req.session.user.username) {
+    const imageUrl = image.path.replace("\\", "/");
+    User.findOneAndUpdate(req.session.user._id)
+      .then(user => {
+        user.avatar = imageUrl;
+        req.session.user.avatar = imageUrl;
+        return user.save();
+      })
+      .then(() => {
+        return Post.updateMany({}, { avatarUrl: imageUrl });
+      })
+      .then(() => {
+        fileHelper.deleteFile(unlinkFile);
+        return res.redirect("/home");
+      })
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
+  }
+  if (!image && newUsername === req.session.user.username) {
+    return res.render("main/settings", {
+      path: "/settings",
+      pageTitle: "Pamp - User settings",
+      errorMessage: "No changes were made",
+      oldInput: {
+        username: req.session.user.username
+      },
+      validationErrors: []
+    });
+  }
 };
 
 exports.getUpload = (req, res, next) => {
@@ -123,11 +227,11 @@ exports.postUpload = (req, res, next) => {
   const currentDate = getCurrentDate();
 
   const postPost = new Post({
-      description: description,
-      uploadDate: currentDate,
-      username: req.session.user.username,
-      userId: req.user
-    });
+    description: description,
+    uploadDate: currentDate,
+    username: req.session.user.username,
+    userId: req.user
+  });
 
   if (req.session.user.avatar) {
     postPost.avatarUrl = req.session.user.avatar;
@@ -141,7 +245,7 @@ exports.postUpload = (req, res, next) => {
   const postUser = {
     postId: postPost._id,
     description: description
-  }
+  };
 
   User.findById(req.session.user._id)
     .then(user => {
@@ -153,7 +257,7 @@ exports.postUpload = (req, res, next) => {
       return postPost.save();
     })
     .then(() => {
-      res.redirect('/home');
+      res.redirect("/home");
     })
     .catch(err => {
       const error = new Error(err);

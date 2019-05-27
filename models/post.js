@@ -21,7 +21,7 @@ const postSchema = new Schema({
     },
     avatarUrl: {
         type: String,
-        required: false
+        required: true
     },
     userId: {
         type: Schema.Types.ObjectId,

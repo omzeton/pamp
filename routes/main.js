@@ -60,12 +60,19 @@ router.get("/home", isAuth, mainController.getHome);
 
 router.get("/settings", isAuth, mainController.getSettings);
 
+router.post('/settings', [
+  body('username', 'Please enter a valid username')
+    .isString()
+    .isLength({ min: 1 })
+    .trim()
+], isAuth, mainController.postSettings);
+
 router.get("/upload", isAuth, mainController.getUpload);
 
 router.post(
   "/upload",
   [
-    body('description', "please enter a valid description")
+    body('description', "Please enter a valid description")
       .isString()
       .isLength({ min: 3, max: 400 })
       .trim()

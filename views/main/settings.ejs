@@ -1,11 +1,30 @@
 <%- include('../includes/head.ejs') %>
-<link rel="stylesheet" href="css/home.css">
 </head>
 <body>
 
-    <div class="settings_container">
-        <p>change avatar</p>
-    </div>
+    <h2 class="heading center">Upload</h2>
+
+    <form class="form" action="/settings" method="POST" enctype="multipart/form-data">
+
+        <div class="form-control">
+            <label for="image">Change avatar</label>
+            <input name="image" type="file" id="avatar">
+        </div>
+
+        <div class="form-control">
+            <label for="username">Change username</label>
+            <input name="username" type="text" id="username" value="<%= oldInput.username %>">
+        </div>
+
+        <button class="form-btn" type="submit">Confirm settings</button>
+
+    </form>
+
+    <% if (errorMessage) { %>
+        <div class="user-error-message">
+            <%= errorMessage %>
+        </div>
+    <% } %>
 
     <%- include('../includes/navigation.ejs') %>
     

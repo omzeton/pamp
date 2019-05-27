@@ -63,6 +63,7 @@ exports.postSignup = async (req, res, next) => {
       password: hashedPassword,
       username: username,
       registryDate: today,
+      avatar: '',
       uploaded: 0
     });
     await user.save();
