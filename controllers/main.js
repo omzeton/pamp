@@ -53,7 +53,6 @@ exports.getHome = (req, res, next) => {
   }
   Post.find()
     .then(allPosts => {
-      console.log(allPosts);
       return res.render("main/home", {
         path: "/home",
         pageTitle: "Pamp - Home",
@@ -88,12 +87,11 @@ exports.getUpload = (req, res, next) => {
 };
 
 exports.postUpload = (req, res, next) => {
-  const title = req.body.title;
   const image = req.file;
   const description = req.body.description;
 
-  if (!image) {
-    return res.status(422).render("main/upload", {
+  if (!image && image != undefined) {
+    res.status(422).render("main/upload", {
       path: "/upload",
       pageTitle: "Pamp - Upload new image",
       errorMessage: "Attached file is not an image",
@@ -103,6 +101,7 @@ exports.postUpload = (req, res, next) => {
       },
       validationErrors: []
     });
+  } else {
   }
 
   const errors = validationResult(req);
@@ -121,20 +120,26 @@ exports.postUpload = (req, res, next) => {
     });
   }
 
-  const imageUrl = image.path.replace("\\", "/");
   const currentDate = getCurrentDate();
 
   const postPost = new Post({
-    title: title,
-    description: description,
-    imageUrl: imageUrl,
-    uploadDate: currentDate,
-    userId: req.user
-  });
+      description: description,
+      uploadDate: currentDate,
+      username: req.session.user.username,
+      userId: req.user
+    });
+
+  if (req.session.user.avatar) {
+    postPost.avatarUrl = req.session.user.avatar;
+  }
+
+  if (image) {
+    const imageUrl = image.path.replace("\\", "/");
+    postPost.imageUrl = imageUrl;
+  }
 
   const postUser = {
     postId: postPost._id,
-    name: title,
     description: description
   }
 

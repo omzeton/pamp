@@ -65,10 +65,6 @@ router.get("/upload", isAuth, mainController.getUpload);
 router.post(
   "/upload",
   [
-    body("title", "please enter a valid title")
-      .isString()
-      .isLength({ min: 3 })
-      .trim(),
     body('description', "please enter a valid description")
       .isString()
       .isLength({ min: 3, max: 400 })

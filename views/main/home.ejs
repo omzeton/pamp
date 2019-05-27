@@ -7,22 +7,35 @@
         <div class="home_left">
             <div class="user-avatar"></div>
             <p>Username: <span><%= user.name %></span></p>
-            <p>Registered since: <span> <%= user.registeredSince %></span></p>
-            <p>Files uploaded: <span> <%= user.filesUploaded %> </span></p>
+            <p>Registered since:<br><span> <%= user.registeredSince %></span></p>
+            <p>Posted: <span> <%= user.filesUploaded %> </span></p>
             <a href="/settings">Settings</a>
         </div>
         <div class="home_right">
             <% if (posts.length > 0) { %>
                 <% for (let p of posts) { %>
                     <div class="post">
-                        <p><%= p.uploadDate %></p>
-                        <img src="/<%= p.imageUrl %>" alt="p.title">
-                        <p><%= p.title %></p>
-                        <p><%= p.description %></p>
+                        <div class="post__top">
+                            <div class="post__top--left post__avatar" style="background-image: url(<%= p.avatarUrl ? p.avatarUrl : '../img/setup-avatar.png' %>)"></div>
+                            <div class="post__top--right">
+                                <p><%= p.username %></p>
+                                <p><%= p.uploadDate %></p>
+                            </div>
+                        </div>
+                        <div class="post__body">
+                            <% if (p.imageUrl) { %>
+                                <p><%= p.description %></p>
+                                <div class="post__body--img__container">
+                                    <img src="/<%= p.imageUrl %>" alt="p.title">
+                                </div>
+                            <% } else { %>
+                                <p><%= p.description %></p>
+                            <% } %>
+                        </div>
                     </div>
                 <% } %>
             <% } else { %>
-                <h2 class="center">No posts found!</h2>
+                <h2 class="center no-posts">No posts found!</h2>
             <% } %>
         </div>
     </div>

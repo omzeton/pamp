@@ -30,10 +30,6 @@ const userSchema = new Schema({
         ref: "Post",
         required: true
       },
-      name: {
-        type: String,
-        required: true
-      },
       description: {
         type: String,
         required: true

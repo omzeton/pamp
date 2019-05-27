@@ -35,9 +35,12 @@ const fileStorage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === 'image/png' ||
+    file.mimetype === 'image/gif' ||
     file.mimetype === 'image/jpg' ||
     file.mimetype === 'image/jpeg'
   ) {
+    cb(null, true);
+  } else if (file === undefined) {
     cb(null, true);
   } else {
     cb(null, false);
@@ -54,6 +57,7 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
 
 // Session 3
 app.use(
