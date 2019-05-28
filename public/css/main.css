@@ -199,3 +199,14 @@ body {
   font-size: 0.9em;
   font-family: var(--cardo);
 }
+
+.delete-user h2,
+.delete-user h3 {
+  font-family: var(--cardo);
+  text-align: center;
+}
+
+.delete-user h3 {
+  color:var(--c1);
+  margin-bottom: 2em;
+}

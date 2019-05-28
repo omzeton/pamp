@@ -17,3 +17,6 @@ closeBtn.addEventListener("click", () => {
     modal.style.zIndex = -9999;
   }, 500);
 });
+
+
+const selectImg = document.getElementById('selectImg');

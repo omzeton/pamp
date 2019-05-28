@@ -98,7 +98,7 @@ mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true })
   .then(() => {
     app.listen(3000);
-    console.log("ተገናኝቷል");
+    console.log("Connected to MongoDB");
   })
   .catch(error => {
     console.log(error);

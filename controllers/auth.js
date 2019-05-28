@@ -1,5 +1,7 @@
 const User = require("../models/user");
+const Post = require("../models/post");
 const bcrypt = require("bcryptjs");
+const fileHelper = require("../util/deleteFile");
 const { validationResult } = require("express-validator/check");
 
 exports.getSignup = (req, res, next) => {
@@ -64,7 +66,7 @@ exports.postSignup = async (req, res, next) => {
       username: username,
       registryDate: today,
       uploaded: 0,
-      avatar: '-',
+      avatar: "-",
       posts: []
     });
     await user.save();
@@ -127,7 +129,7 @@ exports.postLogin = async (req, res, next) => {
       req.session.user = user;
       return req.session.save(err => {
         console.log(err);
-        res.redirect('/home');
+        res.redirect("/home");
       });
     }
     return res.status(422).render("auth/login", {
@@ -165,6 +167,114 @@ exports.getError = (req, res, next) => {
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
     console.log(err);
-    res.redirect('/');
+    res.redirect("/");
   });
+};
+
+exports.getChangePassword = (req, res, next) => {
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "Pamp - Reset your password",
+    errorMessage: "",
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: ""
+    },
+    validationErrors: []
+  });
+};
+
+exports.postChangePassword = (req, res, next) => {
+  const newPassword = req.body.password;
+  let hashedPassword;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("auth/reset", {
+      path: "/reset",
+      pageTitle: "Pamp - Reset your password",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        password: newPassword
+      },
+      validationErrors: errors.array()
+    });
+  }
+  bcrypt
+    .hash(newPassword, 12)
+    .then(hashed => {
+      return (hashedPassword = hashed);
+    })
+    .then(() => {
+      return User.findById(req.session.user._id);
+    })
+    .then(user => {
+      user.password = hashedPassword;
+      req.session.user.password = hashedPassword;
+      return user.save();
+    })
+    .then(() => {
+      res.redirect("/");
+    })
+    .catch(err => {
+      console.log(err);
+      return res.status(422).render("auth/reset", {
+        path: "/reset",
+        pageTitle: "Pamp - Reset your password",
+        errorMessage:
+          "Something went wrong reseting your password. Try again later.",
+        oldInput: {
+          email: email,
+          password: password
+        },
+        validationErrors: []
+      });
+    });
+};
+
+exports.getDeleteUser = (req, res, next) => {
+  res.render("auth/delete-account", {
+    path: "/delete-account",
+    pageTitle: "Pamp - Delete user"
+  });
+};
+
+exports.postDeleteUser = (req, res, next) => {
+  const uId = req.session.user._id;
+  let avatar;
+  User.findByIdAndDelete(uId)
+    .then(() => {
+      return Post.find({ userId: uId });
+    })
+    .then(posts => {
+      for (let p of posts) {
+        if (p.imageUrl) {
+          fileHelper.deleteFile(p.imageUrl);
+          if (p.avatarUrl) {
+            avatar = p.avatarUrl;
+          }
+        }
+      }
+      if (avatar.toString() !== "-") {
+        fileHelper.deleteFile(avatar);
+      }
+    })
+    .then(() => {
+      return Post.deleteMany({ userId: uId });
+    })
+    .then(() => {
+      return req.session.destroy(err => {
+        console.log(err);
+      });
+    })
+    .then(() => {
+      console.log('User account deleted. You earned your rest.');
+      res.redirect("/");
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

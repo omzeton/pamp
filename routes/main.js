@@ -46,11 +46,37 @@ router.get("/login", authController.getLogin);
 
 router.post("/login", authController.postLogin);
 
-router.post("/logout", authController.postLogout);
+router.post("/logout", isAuth, authController.postLogout);
 
 router.get("/success", authController.getSuccess);
 
 router.get("/error", authController.getError);
+
+router.get("/password-change", isAuth, authController.getChangePassword);
+
+router.post(
+  "/password-change",
+  [
+    body("password", "Password has to be at least 6 characters long.")
+      .isLength({ min: 6 })
+      .isAlphanumeric()
+      .trim(),
+    body("passwordRepeat")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("Passwords don't match.");
+        }
+        return true;
+      })
+  ],
+  isAuth,
+  authController.postChangePassword
+);
+
+router.get("/delete-user", isAuth, authController.getDeleteUser);
+
+router.post("/delete-user", isAuth, authController.postDeleteUser);
 
 // main
 
@@ -60,19 +86,24 @@ router.get("/home", isAuth, mainController.getHome);
 
 router.get("/settings", isAuth, mainController.getSettings);
 
-router.post('/settings', [
-  body('username', 'Please enter a valid username')
-    .isString()
-    .isLength({ min: 1 })
-    .trim()
-], isAuth, mainController.postSettings);
+router.post(
+  "/settings",
+  [
+    body("username", "Please enter a valid username")
+      .isString()
+      .isLength({ min: 1 })
+      .trim()
+  ],
+  isAuth,
+  mainController.postSettings
+);
 
 router.get("/upload", isAuth, mainController.getUpload);
 
 router.post(
   "/upload",
   [
-    body('description', "Please enter a valid description")
+    body("description", "Please enter a valid description")
       .isString()
       .isLength({ min: 3, max: 400 })
       .trim()
@@ -81,8 +112,22 @@ router.post(
   mainController.postUpload
 );
 
-router.post('/delete/:postId', isAuth, mainController.postDelete);
+router.post("/delete/:postId", isAuth, mainController.postDelete);
 
-router.post('/like/:postId', isAuth, mainController.postLike);
+router.post("/like/:postId", isAuth, mainController.postLike);
+
+router.get("/edit/:postId", isAuth, mainController.getEdit);
+
+router.post(
+  "/edit/:postId",
+  [
+    body("description", "Please enter a valid description")
+      .isString()
+      .isLength({ min: 3, max: 400 })
+      .trim()
+  ],
+  isAuth,
+  mainController.postEdit
+);
 
 module.exports = router;

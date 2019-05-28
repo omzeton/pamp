@@ -26,20 +26,21 @@ const userSchema = new Schema({
   avatar: {
     type: String,
     required: true
-  },
-  posts: [
-    {
-      postId: {
-        type: Schema.Types.ObjectId,
-        ref: "Post",
-        required: true
-      },
-      description: {
-        type: String,
-        required: true
-      }
-    }
-  ]
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);
+
+// posts: [
+//   {
+//     postId: {
+//       type: Schema.Types.ObjectId,
+//       ref: "Post",
+//       required: true
+//     },
+//     description: {
+//       type: String,
+//       required: true
+//     }
+//   }
+// ]

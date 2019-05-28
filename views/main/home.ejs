@@ -39,7 +39,11 @@
                             <form action="/share" method="post">
                                 <button type="submit" class="share">Share</button>
                             </form>
+                            <br>
                             <% if (p.userId.toString() === user.id.toString()) { %>
+                                <form action="/edit/<%= p._id %>" method="get">
+                                    <button type="submit" class="edit">Edit</button>
+                                </form>
                                 <form action="/delete/<%= p._id %>" method="post">
                                     <button type="submit" class="delete">Delete</button>
                                 </form>

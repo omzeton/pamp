@@ -64,7 +64,7 @@ exports.getHome = (req, res, next) => {
         id: req.session.user._id
       },
       posts: allPosts,
-      scripts: 'test.js'
+      scripts: "test.js"
     });
   });
 };
@@ -208,7 +208,9 @@ exports.getUpload = (req, res, next) => {
       title: "",
       description: ""
     },
-    validationErrors: []
+    validationErrors: [],
+    editing: false,
+    scripts: "select.js"
   });
 };
 
@@ -224,7 +226,22 @@ exports.postUpload = (req, res, next) => {
       oldInput: {
         description: description
       },
-      validationErrors: []
+      validationErrors: [],
+      editing: false
+    });
+  }
+
+  if (!description && image) {
+    fileHelper.deleteFile(image.path.replace("\\", "/"));
+    return res.status(422).render("main/upload", {
+      path: "/upload",
+      pageTitle: "Pamp - Upload new image",
+      errorMessage: "Please provide a description",
+      oldInput: {
+        description: description
+      },
+      validationErrors: [],
+      editing: false
     });
   }
 
@@ -236,7 +253,8 @@ exports.postUpload = (req, res, next) => {
       oldInput: {
         description: description
       },
-      validationErrors: []
+      validationErrors: [],
+      editing: false
     });
   }
 
@@ -249,10 +267,10 @@ exports.postUpload = (req, res, next) => {
       pageTitle: "Pamp - Upload new image",
       errorMessage: errors.array()[0].msg,
       oldInput: {
-        title: title,
         description: description
       },
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
+      editing: false
     });
   }
 
@@ -275,14 +293,8 @@ exports.postUpload = (req, res, next) => {
     postPost.imageUrl = imageUrl;
   }
 
-  const postUser = {
-    postId: postPost._id,
-    description: description
-  };
-
   User.findById(req.session.user._id)
     .then(user => {
-      user.posts.push(postUser);
       user.uploaded += 1;
       return user.save();
     })
@@ -304,29 +316,27 @@ exports.postDelete = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       if (!post) {
-        return next(new Error('Post not found'));
+        return next(new Error("Post not found"));
       }
       if (post.imageUrl) {
         fileHelper.deleteFile(post.imageUrl);
       }
-      return Post.deleteOne({ _id: postId, userId: req.session.user._id})
+      return Post.deleteOne({ _id: postId, userId: req.session.user._id });
     })
     .then(() => {
       return User.findById(req.user._id);
     })
     .then(user => {
       user.uploaded -= 1;
-      user.posts = user.posts.filter(p => p._id.toString() !== postId.toString());
       return user.save();
     })
     .then(() => {
-      console.log('Post deleted!');
-      res.redirect('/home');
+      console.log("Post deleted!");
+      res.redirect("/home");
     })
     .catch(err => {
-      res.status(500).json({ message: 'Deleting product failed.' });
+      res.status(500).json({ message: "Deleting product failed." });
     });
-  // update posts array
 };
 
 exports.postLike = (req, res, next) => {
@@ -334,12 +344,109 @@ exports.postLike = (req, res, next) => {
   Post.findById(postId)
     .then(post => {
       if (!post) {
-        return next(new Error('Post not found'));
+        return next(new Error("Post not found"));
       }
       post.likes += 1;
       return post.save();
     })
     .then(() => {
-      res.redirect('/home');
+      res.redirect("/home");
     })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.getEdit = (req, res, next) => {
+  const postId = req.params.postId;
+  let oldDescription;
+  Post.findById(postId)
+    .then(post => {
+      if (!post) {
+        return next(new Error("Post not found"));
+      }
+      oldDescription = post.description;
+    })
+    .then(() => {
+      res.render("main/upload", {
+        path: "/upload",
+        pageTitle: "Pamp - Update your post",
+        errorMessage: "",
+        oldInput: {
+          description: oldDescription
+        },
+        validationErrors: [],
+        editing: true,
+        postId: postId
+      });
+    });
+};
+
+exports.postEdit = (req, res, next) => {
+  const postId = req.params.postId;
+  const newDescription = req.body.description;
+  const image = req.file;
+  const keepImg = req.body.keepImg;
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render("main/upload", {
+      path: "/upload",
+      pageTitle: "Pamp - Update your post",
+      errorMessage: errors.array()[0].msg,
+      oldInput: {
+        description: newDescription
+      },
+      validationErrors: errors.array(),
+      editing: true,
+      postId: postId
+    });
+  }
+
+  Post.findById(postId)
+    .then(post => {
+      if (keepImg.toString() === "false" && image) {
+        const imageUrl = image.path.replace("\\", "/");
+        if (post.imageUrl) {
+          fileHelper.deleteFile(post.imageUrl);
+        }
+        post.imageUrl = imageUrl;
+        post.description = newDescription;
+        return post.save();
+      } else if (keepImg.toString() === "false" && !image) {
+        res.render("main/upload", {
+          path: "/upload",
+          pageTitle: "Pamp - Update your post",
+          errorMessage: "Please provide an image",
+          oldInput: {
+            description: newDescription
+          },
+          validationErrors: [],
+          editing: true,
+          postId: postId
+        });
+      } else if (keepImg.toString() === "true" && image) {
+        fileHelper.deleteFile(image.path.replace("\\", "/"));
+        post.description = newDescription;
+        return post.save();
+      } else if (keepImg.toString() === "delete") {
+        post.imageUrl = undefined;
+        return post.save();
+      } else {
+        post.description = newDescription;
+        return post.save();
+      }
+    })
+    .then(() => {
+      return res.redirect("/");
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

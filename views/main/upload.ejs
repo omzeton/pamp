@@ -4,7 +4,17 @@
 
     <h2 class="heading center">Upload</h2>
 
-    <form class="form" action="/upload" method="POST" enctype="multipart/form-data">
+    <form class="form" action="<% if (editing) { %> /edit/<%= postId %> <% } else { %> /upload <% } %>" method="POST" enctype="multipart/form-data">
+
+        <% if (editing) { %>
+
+        <select name="keepImg" id="selectImg">
+            <option value="true">Keep current image</option>
+            <option value="false">Change image</option>
+            <option value="delete">Delete image</option>
+        </select>
+
+        <% } %>
 
         <div class="form-control">
             <label for="image">Image</label>
@@ -16,7 +26,7 @@
             <textarea name="description" rows="4" cols="31"><%= oldInput.description %></textarea>
         </div>
 
-        <button class="form-btn" type="submit">Submit</button>
+        <button class="form-btn" type="submit"><% if (editing) { %> Update product <% } else { %> Submit <% } %></button>
 
     </form>
 
@@ -27,5 +37,6 @@
     <% } %>
 
     <%- include('../includes/navigation.ejs') %>
-    
+        
+
 <%- include('../includes/end.ejs') %>
