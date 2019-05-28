@@ -81,4 +81,8 @@ router.post(
   mainController.postUpload
 );
 
+router.post('/delete/:postId', isAuth, mainController.postDelete);
+
+router.post('/like/:postId', isAuth, mainController.postLike);
+
 module.exports = router;

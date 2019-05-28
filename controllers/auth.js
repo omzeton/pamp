@@ -63,8 +63,9 @@ exports.postSignup = async (req, res, next) => {
       password: hashedPassword,
       username: username,
       registryDate: today,
-      avatar: '',
-      uploaded: 0
+      uploaded: 0,
+      avatar: '-',
+      posts: []
     });
     await user.save();
     res.redirect("/login");

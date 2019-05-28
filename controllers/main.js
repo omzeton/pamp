@@ -38,9 +38,9 @@ exports.getIndex = (req, res, next) => {
     path: "/home",
     pageTitle: "Pamp - Home",
     user: {
-      name: user.username,
-      registeredSince: user.registryDate,
-      filesUploaded: user.uploaded
+      name: req.session.user.username,
+      registeredSince: req.session.user.registryDate,
+      filesUploaded: req.session.user.uploaded
     }
   });
 };
@@ -60,9 +60,11 @@ exports.getHome = (req, res, next) => {
         name: req.user.username,
         registeredSince: req.user.registryDate,
         filesUploaded: req.user.uploaded,
-        avatar: req.session.user.avatar
+        avatar: req.session.user.avatar,
+        id: req.session.user._id
       },
-      posts: allPosts
+      posts: allPosts,
+      scripts: 'test.js'
     });
   });
 };
@@ -83,6 +85,7 @@ exports.postSettings = (req, res, next) => {
   const newUsername = req.body.username;
   const image = req.file;
   const unlinkFile = req.session.user.avatar;
+  const firstTimeAvatar = req.session.user.avatar === "-" ? true : false;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -110,12 +113,17 @@ exports.postSettings = (req, res, next) => {
       })
       .then(() => {
         return Post.updateMany(
-          {},
-          { username: newUsername, avatarUrl: imageUrl }
+          { userId: req.session.user._id },
+          { username: newUsername, avatarUrl: imageUrl },
+          err => {
+            console.log("no posts found with this id!");
+          }
         );
       })
       .then(() => {
-        fileHelper.deleteFile(unlinkFile);
+        if (!firstTimeAvatar) {
+          fileHelper.deleteFile(unlinkFile);
+        }
         return res.redirect("/home");
       })
       .catch(err => {
@@ -132,7 +140,13 @@ exports.postSettings = (req, res, next) => {
         return user.save();
       })
       .then(() => {
-        return Post.updateMany({}, { username: newUsername });
+        return Post.updateMany(
+          { userId: req.session.user._id },
+          { username: newUsername },
+          err => {
+            console.log("no posts found with this id!");
+          }
+        );
       })
       .then(() => {
         return res.redirect("/home");
@@ -145,17 +159,25 @@ exports.postSettings = (req, res, next) => {
   }
   if (image && newUsername === req.session.user.username) {
     const imageUrl = image.path.replace("\\", "/");
-    User.findOneAndUpdate(req.session.user._id)
+    User.findById(req.session.user._id)
       .then(user => {
         user.avatar = imageUrl;
         req.session.user.avatar = imageUrl;
         return user.save();
       })
       .then(() => {
-        return Post.updateMany({}, { avatarUrl: imageUrl });
+        return Post.updateMany(
+          { userId: req.session.user._id },
+          { avatarUrl: imageUrl },
+          err => {
+            console.log("no posts found with this id!");
+          }
+        );
       })
       .then(() => {
-        fileHelper.deleteFile(unlinkFile);
+        if (!firstTimeAvatar) {
+          fileHelper.deleteFile(unlinkFile);
+        }
         return res.redirect("/home");
       })
       .catch(err => {
@@ -195,17 +217,27 @@ exports.postUpload = (req, res, next) => {
   const description = req.body.description;
 
   if (!image && image != undefined) {
-    res.status(422).render("main/upload", {
+    return res.status(422).render("main/upload", {
       path: "/upload",
       pageTitle: "Pamp - Upload new image",
       errorMessage: "Attached file is not an image",
       oldInput: {
-        title: title,
         description: description
       },
       validationErrors: []
     });
-  } else {
+  }
+
+  if (!description) {
+    return res.status(422).render("main/upload", {
+      path: "/upload",
+      pageTitle: "Pamp - Upload new image",
+      errorMessage: "Please provide a description",
+      oldInput: {
+        description: description
+      },
+      validationErrors: []
+    });
   }
 
   const errors = validationResult(req);
@@ -230,7 +262,8 @@ exports.postUpload = (req, res, next) => {
     description: description,
     uploadDate: currentDate,
     username: req.session.user.username,
-    userId: req.user
+    userId: req.user,
+    likes: 0
   });
 
   if (req.session.user.avatar) {
@@ -264,6 +297,49 @@ exports.postUpload = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
+};
 
-  const pushedPost = {};
+exports.postDelete = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then(post => {
+      if (!post) {
+        return next(new Error('Post not found'));
+      }
+      if (post.imageUrl) {
+        fileHelper.deleteFile(post.imageUrl);
+      }
+      return Post.deleteOne({ _id: postId, userId: req.session.user._id})
+    })
+    .then(() => {
+      return User.findById(req.user._id);
+    })
+    .then(user => {
+      user.uploaded -= 1;
+      user.posts = user.posts.filter(p => p._id.toString() !== postId.toString());
+      return user.save();
+    })
+    .then(() => {
+      console.log('Post deleted!');
+      res.redirect('/home');
+    })
+    .catch(err => {
+      res.status(500).json({ message: 'Deleting product failed.' });
+    });
+  // update posts array
+};
+
+exports.postLike = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then(post => {
+      if (!post) {
+        return next(new Error('Post not found'));
+      }
+      post.likes += 1;
+      return post.save();
+    })
+    .then(() => {
+      res.redirect('/home');
+    })
 };

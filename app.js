@@ -49,6 +49,7 @@ const fileFilter = (req, file, cb) => {
 
 app.set("view engine", "ejs");
 app.set("views", "views");
+// app.set('view options', { locals: { scripts: ['test.js'] } });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(express.json());

@@ -5,7 +5,7 @@
 
     <div class="home_container">
         <div class="home_left">
-            <div class="user-avatar" style="background-image: url(<%= user.avatar === '' ? '../img/setup-avatar.png' : user.avatar %>)"></div>
+            <div class="user-avatar" style="background-image: url(<%= user.avatar === '-' ? '../img/setup-avatar.png' : user.avatar %>)"></div>
             <p>Username: <span><%= user.name %></span></p>
             <p>Registered since:<br><span> <%= user.registeredSince %></span></p>
             <p>Posted: <span> <%= user.filesUploaded %> </span></p>
@@ -16,7 +16,7 @@
                 <% for (let p of posts) { %>
                     <div class="post">
                         <div class="post__top">
-                            <div class="post__top--left post__avatar" style="background-image: url(<%= p.avatarUrl === '' ? '../img/setup-avatar.png' : p.avatarUrl %>)"></div>
+                            <div class="post__top--left post__avatar" style="background-image: url(<%= p.avatarUrl === '-' ? '../img/setup-avatar.png' : p.avatarUrl %>)"></div>
                             <div class="post__top--right">
                                 <p><%= p.username %></p>
                                 <p><%= p.uploadDate %></p>
@@ -33,14 +33,14 @@
                             <% } %>
                         </div>
                         <div class="post__footer">
-                            <form action="/like" method="post">
-                                <button type="submit" class="like">Like (0)</button>
+                            <form action="/like/<%= p._id %>" method="post">
+                                <button type="submit" class="like">Like (<%= p.likes %>)</button>
                             </form>
                             <form action="/share" method="post">
                                 <button type="submit" class="share">Share</button>
                             </form>
-                            <% if (isAuthenticated) { %>
-                                <form action="/delete" method="post">
+                            <% if (p.userId.toString() === user.id.toString()) { %>
+                                <form action="/delete/<%= p._id %>" method="post">
                                     <button type="submit" class="delete">Delete</button>
                                 </form>
                             <% } %>
@@ -52,6 +52,13 @@
             <% } %>
         </div>
     </div>
+
+    <div class="img__preview__modal" id="modal">
+        <p id="close">Close</p>
+        <img src="" alt="" id="preview-image">
+    </div>
+
+    <script type="text/javascript" src="<%= scripts %>"></script>
 
     <%- include('../includes/navigation.ejs') %>
     

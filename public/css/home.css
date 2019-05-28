@@ -76,6 +76,10 @@
   overflow-x: hidden;
   background-color: var(--c3weak);
   border-right: 1px solid var(--c1);
+  background-image:url('../img/tiled_bg_2.png');
+  background-size:20em;
+  background-repeat: repeat;
+  background-position: center;
 }
 
 .home_right .post {
@@ -201,4 +205,40 @@
   border-bottom: none;
   border-bottom-left-radius: 0.5em;
   border-bottom-right-radius: 0.5em;
+}
+
+.img__preview__modal {
+  background-color:rgba(0, 0, 0, 0.5);
+  width:100%;
+  height:100%;
+  position:fixed;
+  opacity: 0;
+  z-index: -9999;
+  display:flex;
+  transition:0.5s opacity;
+  align-items: center;
+  justify-content: center;
+}
+
+.img__preview__modal #close {
+  position:absolute;
+  right:3em;
+  top:2em;
+  color:red;
+  font-family: var(--rubik);
+  transition:0.3s color;
+  cursor: pointer;
+}
+
+.img__preview__modal #close:hover {
+  color:var(--c2);
+}
+
+.img__preview__modal img {
+  width:auto;
+  height:auto;
+  max-width: 40em;
+  max-height: 40em;
+  border:1px solid #fff;
+  box-shadow: 0 0 100px -35px #fff;
 }

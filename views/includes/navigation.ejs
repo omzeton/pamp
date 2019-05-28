@@ -2,7 +2,7 @@
   <a href="<%=  isAuthenticated ?'/home' : '/' %>"
     class="<%= path === '/' ? 'active' : '' %>">Home</a>
     <% if (isAuthenticated) { %>
-      <a href="/upload">Upload image</a>
+      <a href="/upload">Upload something</a>
   <form action="/logout" method="post">
     <button type="submit" class="logout">Logout</button>
   </form>
