@@ -6,9 +6,9 @@
     <div class="home_container">
         <div class="home_left">
             <div class="user-avatar" style="background-image: url(<%= user.avatar === '-' ? '../img/setup-avatar.png' : user.avatar %>)"></div>
-            <p>Username: <span><%= user.name %></span></p>
+            <p>Username:<br><span><%= user.name %></span></p>
             <p>Registered since:<br><span> <%= user.registeredSince %></span></p>
-            <p>Posted: <span> <%= user.filesUploaded %> </span></p>
+            <p>Posted:<br><span> <%= user.filesUploaded %> </span></p>
             <a href="/settings">Settings</a>
         </div>
         <div class="home_right">
@@ -23,29 +23,44 @@
                             </div>
                         </div>
                         <div class="post__body">
-                            <% if (p.imageUrl) { %>
-                                <p><%= p.description %></p>
-                                <div class="post__body--img__container">
-                                    <img src="/<%= p.imageUrl %>" alt="p.title">
+                            <% if (p.shared) { %>
+                                <div class="shared__post">
+                                    <% if (p.imageUrl) { %>
+                                    <p><span>On <%= p.sharingDetails.uploadDate.split(' - ')[0] %> <%= p.sharingDetails.owner %> uploaded:</span> <%= p.description %></p>
+                                    <div class="post__body--img__container">
+                                        <img src="/<%= p.imageUrl %>" alt="p.title">
+                                    </div>
+                                    <% } else { %>
+                                        <p><span>On <%= p.sharingDetails.uploadDate.split(' - ')[0] %> <%= p.sharingDetails.owner %> uploaded:</span> <%= p.description %></p>
+                                    <% } %>
                                 </div>
                             <% } else { %>
-                                <p><%= p.description %></p>
+                                <% if (p.imageUrl) { %>
+                                    <p><%= p.description %></p>
+                                    <div class="post__body--img__container">
+                                        <img src="/<%= p.imageUrl %>" alt="p.title">
+                                    </div>
+                                <% } else { %>
+                                    <p><%= p.description %></p>
+                                <% } %>
                             <% } %>
+                            
+
                         </div>
                         <div class="post__footer">
                             <form action="/like/<%= p._id %>" method="post">
-                                <button type="submit" class="like">Like (<%= p.likes %>)</button>
+                                <button type="submit" class="like"></button>
                             </form>
-                            <form action="/share" method="post">
-                                <button type="submit" class="share">Share</button>
+                            <form action="/share/<%= p._id %>" method="post">
+                                <button type="submit" class="share"></button>
                             </form>
                             <br>
-                            <% if (p.userId.toString() === user.id.toString()) { %>
+                            <% if ( p.userId.toString() === user.id.toString() ) { %>
                                 <form action="/edit/<%= p._id %>" method="get">
-                                    <button type="submit" class="edit">Edit</button>
+                                    <button type="submit" class="edit"></button>
                                 </form>
                                 <form action="/delete/<%= p._id %>" method="post">
-                                    <button type="submit" class="delete">Delete</button>
+                                    <button type="submit" class="delete"></button>
                                 </form>
                             <% } %>
                         </div>

@@ -128,7 +128,6 @@ exports.postLogin = async (req, res, next) => {
       req.session.isLoggedIn = true;
       req.session.user = user;
       return req.session.save(err => {
-        console.log(err);
         res.redirect("/home");
       });
     }
@@ -166,7 +165,6 @@ exports.getError = (req, res, next) => {
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy(err => {
-    console.log(err);
     res.redirect("/");
   });
 };
@@ -218,7 +216,6 @@ exports.postChangePassword = (req, res, next) => {
       res.redirect("/");
     })
     .catch(err => {
-      console.log(err);
       return res.status(422).render("auth/reset", {
         path: "/reset",
         pageTitle: "Pamp - Reset your password",
@@ -265,11 +262,10 @@ exports.postDeleteUser = (req, res, next) => {
     })
     .then(() => {
       return req.session.destroy(err => {
-        console.log(err);
       });
     })
     .then(() => {
-      console.log('User account deleted. You earned your rest.');
+      console.log('User account deleted.');
       res.redirect("/");
     })
     .catch(err => {

@@ -34,14 +34,17 @@ exports.getIndex = (req, res, next) => {
       pageTitle: "Welcome to Pamp"
     });
   }
-  return res.render("main/home", {
-    path: "/home",
-    pageTitle: "Pamp - Home",
-    user: {
-      name: req.session.user.username,
-      registeredSince: req.session.user.registryDate,
-      filesUploaded: req.session.user.uploaded
-    }
+  Post.find().then(allPosts => {
+    return res.render("main/home", {
+      path: "/home",
+      pageTitle: "Pamp - Home",
+      user: {
+        name: req.session.user.username,
+        registeredSince: req.session.user.registryDate,
+        filesUploaded: req.session.user.uploaded
+      },
+      posts: allPosts
+    });
   });
 };
 
@@ -114,9 +117,13 @@ exports.postSettings = (req, res, next) => {
       .then(() => {
         return Post.updateMany(
           { userId: req.session.user._id },
-          { username: newUsername, avatarUrl: imageUrl },
+          {
+            username: newUsername,
+            avatarUrl: imageUrl,
+            sharedBy: { userName: newUsername }
+          },
           err => {
-            console.log("no posts found with this id!");
+            console.log("updating posts");
           }
         );
       })
@@ -281,7 +288,8 @@ exports.postUpload = (req, res, next) => {
     uploadDate: currentDate,
     username: req.session.user.username,
     userId: req.user,
-    likes: 0
+    likes: 0,
+    shared: false
   });
 
   if (req.session.user.avatar) {
@@ -313,21 +321,52 @@ exports.postUpload = (req, res, next) => {
 
 exports.postDelete = (req, res, next) => {
   const postId = req.params.postId;
+  let orgImg, dontDelete, isShared;
   Post.findById(postId)
     .then(post => {
       if (!post) {
         return next(new Error("Post not found"));
       }
+      if (post.shared == true) {
+        isShared = true;
+      } else {
+        isShared = false;
+      }
       if (post.imageUrl) {
+        return (orgImg = post.imageUrl);
+      }
+      return (orgImg = false);
+    })
+    .then(() => {
+      return Post.find();
+    })
+    .then(allPosts => {
+      for (let post of allPosts) {
+        if (post.imageUrl) {
+          if (orgImg.toString() === post.imageUrl.toString()) {
+            dontDelete = true;
+          }
+        }
+      }
+    })
+    .then(() => {
+      return Post.findById(postId);
+    })
+    .then(post => {
+      if (post.imageUrl && !dontDelete) {
         fileHelper.deleteFile(post.imageUrl);
       }
-      return Post.deleteOne({ _id: postId, userId: req.session.user._id });
+    })
+    .then(() => {
+      return Post.deleteOne({ _id: postId, userId: req.session.user._id })
     })
     .then(() => {
       return User.findById(req.user._id);
     })
     .then(user => {
-      user.uploaded -= 1;
+      if (!isShared) {
+        user.uploaded -= 1;
+      }
       return user.save();
     })
     .then(() => {
@@ -431,8 +470,17 @@ exports.postEdit = (req, res, next) => {
         });
       } else if (keepImg.toString() === "true" && image) {
         fileHelper.deleteFile(image.path.replace("\\", "/"));
-        post.description = newDescription;
-        return post.save();
+        res.render("main/upload", {
+          path: "/upload",
+          pageTitle: "Pamp - Update your post",
+          errorMessage: "Please choose 'Change image' to upload new picture",
+          oldInput: {
+            description: newDescription
+          },
+          validationErrors: [],
+          editing: true,
+          postId: postId
+        });
       } else if (keepImg.toString() === "delete") {
         post.imageUrl = undefined;
         return post.save();
@@ -442,7 +490,43 @@ exports.postEdit = (req, res, next) => {
       }
     })
     .then(() => {
-      return res.redirect("/");
+      return res.redirect("/home");
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.postShare = (req, res, next) => {
+  const uId = req.session.user._id;
+  const userName = req.session.user.username;
+  const postId = req.params.postId;
+  const avatar = req.session.user.avatar;
+
+  Post.findById(postId)
+    .then(post => {
+      isUsingImg = post.imageUrl ? true : false;
+      const sharedPost = new Post({
+        description: post.description,
+        imageUrl: post.imageUrl,
+        uploadDate: getCurrentDate(),
+        username: userName,
+        avatarUrl: avatar,
+        userId: uId,
+        likes: 0,
+        shared: true,
+        sharingDetails: {
+          postId: post._id,
+          owner: post.username,
+          uploadDate: post.uploadDate
+        }
+      });
+      return sharedPost.save();
+    })
+    .then(() => {
+      res.redirect("/home");
     })
     .catch(err => {
       const error = new Error(err);

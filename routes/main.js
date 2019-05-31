@@ -130,4 +130,6 @@ router.post(
   mainController.postEdit
 );
 
+router.post('/share/:postId', isAuth, mainController.postShare);
+
 module.exports = router;

@@ -4,7 +4,8 @@
 :root {
   --c1: #172a3a;
   --c2: #cfbb05;
-  --c3: #09bc8a;
+  --c3: #dbdbdb;
+  --c3weak: #b3b3b3;
   --cardo: 'Open Sans', sans-serif;
   --rubik: 'Rubik', sans-serif;
 }
@@ -194,7 +195,7 @@ body {
   left:50%;
   transform:translateX(-50%);
   margin-top:-3em;
-  color:#fff;
+  color:var(--c1);
   line-height: 1.2em;
   font-size: 0.9em;
   font-family: var(--cardo);
