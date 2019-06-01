@@ -246,7 +246,7 @@ exports.postDeleteUser = (req, res, next) => {
     })
     .then(posts => {
       for (let p of posts) {
-        if (p.imageUrl) {
+        if (p.imageUrl && p.shared == false) {
           fileHelper.deleteFile(p.imageUrl);
           if (p.avatarUrl) {
             avatar = p.avatarUrl;

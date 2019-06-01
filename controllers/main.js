@@ -27,6 +27,61 @@ function getCurrentDate() {
   return today;
 }
 
+function imgSearch(pId) {
+  const postId = pId;
+  let orgImg, dontDelete, isShared;
+  Post.findById(postId)
+    .then(post => {
+      if (!post) {
+        return next(new Error("Post not found"));
+      }
+      isShared = post.shared == true ? true : false;
+      if (post.imageUrl) {
+        return (orgImg = post.imageUrl);
+      }
+      return (orgImg = false);
+    })
+    .then(() => {
+      return Post.find();
+    })
+    .then(allPosts => {
+      for (let post of allPosts) {
+        if (post.imageUrl) {
+          if (orgImg.toString() === post.imageUrl.toString()) {
+            dontDelete = true;
+          }
+        }
+      }
+    })
+    .then(() => {
+      return Post.findById(postId);
+    })
+    .then(post => {
+      if (post.imageUrl && !dontDelete) {
+        fileHelper.deleteFile(post.imageUrl);
+      }
+    })
+    .then(() => {
+      return Post.deleteOne({ _id: postId, userId: req.session.user._id })
+    })
+    .then(() => {
+      return User.findById(req.user._id);
+    })
+    .then(user => {
+      if (!isShared) {
+        user.uploaded -= 1;
+      }
+      return user.save();
+    })
+    .then(() => {
+      console.log("Post deleted!");
+      res.redirect("/home");
+    })
+    .catch(err => {
+      res.status(500).json({ message: "Deleting product failed." });
+    });
+}
+
 exports.getIndex = (req, res, next) => {
   if (!req.session.isLoggedIn) {
     return res.render("welcome", {
@@ -450,7 +505,7 @@ exports.postEdit = (req, res, next) => {
     .then(post => {
       if (keepImg.toString() === "false" && image) {
         const imageUrl = image.path.replace("\\", "/");
-        if (post.imageUrl) {
+        if (post.imageUrl && post.imageUrl !== '') {
           fileHelper.deleteFile(post.imageUrl);
         }
         post.imageUrl = imageUrl;
