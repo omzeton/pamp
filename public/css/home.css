@@ -286,3 +286,14 @@
   display:block;
   margin-bottom:1em;
 }
+
+.likes {
+  position:absolute;
+  margin-top:1.4em;
+  margin-left:1.2em;
+  line-height: 0;
+  font-size:0.6rem;
+  color:#fff;
+  font-family: var(--cardo);
+  pointer-events: none
+}

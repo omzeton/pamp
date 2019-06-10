@@ -49,6 +49,7 @@
                         </div>
                         <div class="post__footer">
                             <form action="/like/<%= p._id %>" method="post">
+                                <p class="likes"><%= p.likes %></p>
                                 <button type="submit" class="like"></button>
                             </form>
                             <form action="/share/<%= p._id %>" method="post">
@@ -56,9 +57,11 @@
                             </form>
                             <br>
                             <% if ( p.userId.toString() === user.id.toString() ) { %>
-                                <form action="/edit/<%= p._id %>" method="get">
-                                    <button type="submit" class="edit"></button>
-                                </form>
+                                <% if (!p.shared) { %> 
+                                    <form action="/edit/<%= p._id %>" method="get">
+                                        <button type="submit" class="edit"></button>
+                                    </form>
+                                <% }%>
                                 <form action="/delete/<%= p._id %>" method="post">
                                     <button type="submit" class="delete"></button>
                                 </form>
